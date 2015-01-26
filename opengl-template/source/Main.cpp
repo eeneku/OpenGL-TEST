@@ -39,6 +39,7 @@ int main(int argc, char** argv)
 
 	SDL_GLContext context = SDL_GL_CreateContext(window);
 	assert(context != nullptr);
+	glewExperimental = GL_TRUE;
 	const GLenum glewResult = glewInit();
 	assert(glewResult == GLEW_OK);
 

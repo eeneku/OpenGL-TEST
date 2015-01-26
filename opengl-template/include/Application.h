@@ -4,6 +4,9 @@
  * OpenGL Template
  */
 
+#pragma once
+#include "GL/glew.h"
+
 class Application
 {
 public:
@@ -16,4 +19,12 @@ public:
 	~Application();
 
 	void update();
+
+private:
+
+	GLuint program;
+	GLuint vertexShader;
+	GLuint fragmentShader;
+	GLuint vertexArrayID;
+	GLuint vertexBuffer;
 };
