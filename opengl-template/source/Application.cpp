@@ -74,7 +74,9 @@ Application::~Application()
 
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
-
+	glDeleteBuffers(1, &vertexBuffer);
+	glDeleteBuffers(1, &elementBuffer);
+	glDeleteVertexArrays(1, &vertexArrayID);
 	glDeleteProgram(program);
 }
 

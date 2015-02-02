@@ -30,4 +30,5 @@ private:
 	GLuint fragmentShader;
 	GLuint vertexArrayID;
 	GLuint vertexBuffer;
+	GLuint elementBuffer;
 };
