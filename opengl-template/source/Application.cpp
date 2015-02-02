@@ -60,20 +60,19 @@ Application::Application()
 	glAttachShader(program, fragmentShader);
 	glLinkProgram(program);
 
+	glDeleteShader(vertexShader);
+	glDeleteShader(fragmentShader);
+
 	glGetProgramiv(program, GL_LINK_STATUS, &result);
 	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLength);
 
-	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 }
 
 Application::~Application()
 {
 	// Deinitialisation
-	glDisableVertexAttribArray(0);
-
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
 	glDeleteBuffers(1, &vertexBuffer);
 	glDeleteBuffers(1, &elementBuffer);
 	glDeleteVertexArrays(1, &vertexArrayID);
@@ -81,10 +80,17 @@ Application::~Application()
 }
 
 void Application::update()
+
 {
 	// Updating and drawing
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	glEnableVertexAttribArray(0);
+
 	glUseProgram(program);
 
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, (void*)0);
+
+	glDisableVertexAttribArray(0);
+
 }
