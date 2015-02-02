@@ -1,8 +1,8 @@
 /**
- * @file Main.cpp
- *
- * OpenGL Template
- */
+* @file Main.cpp
+*
+* OpenGL Template
+*/
 
 #include <cassert>
 #include <iostream>
@@ -16,9 +16,6 @@ static void loop(SDL_Window* window);
 
 int main(int argc, char** argv)
 {
-	argc;
-	argv;
-
 	int result = SDL_Init(SDL_INIT_VIDEO);
 	assert(result == 0);
 
@@ -36,17 +33,18 @@ int main(int argc, char** argv)
 		Application::WINDOW_WIDTH, Application::WINDOW_HEIGHT, SDL_WINDOW_OPENGL);
 
 	assert(window != nullptr);
-
 	SDL_GLContext context = SDL_GL_CreateContext(window);
 	assert(context != nullptr);
-	glewExperimental = GL_TRUE;
+
+	glewExperimental = GL_TRUE; // Required for some OpenGL features to be available
 	const GLenum glewResult = glewInit();
 	assert(glewResult == GLEW_OK);
+	glGetError(); // For some reason an OpenGL error is emitted by calling glewInit()
 
-	int versionMajor;
-	int versionMinor;
+	int versionMajor = 0;
+	int versionMinor = 0;
 	glGetIntegerv(GL_MAJOR_VERSION, &versionMajor);
-	glGetIntegerv(GL_MAJOR_VERSION, &versionMinor);
+	glGetIntegerv(GL_MINOR_VERSION, &versionMinor);
 	cout << "OpenGL context version: " << versionMajor << '.' << versionMinor << '\n';
 
 	loop(window);

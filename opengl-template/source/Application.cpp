@@ -7,26 +7,7 @@
 #include <Application.h>
 #include <vector>
 #include <iostream>
-
-static const char* VERTEX_SOURCE =
-"#version 330\n"
-
-"in vec3 inPosition;\n"
-
-"void main()\n"
-"{\n"
-"	gl_Position = vec4(inPosition, 1.0);\n"
-"}\n";
-
-static const char* FRAGMENT_SOURCE =
-"#version 330\n"
-
-"out vec4 outColour;\n"
-
-"void main()\n"
-"{\n"
-"	outColour = vec4(1.0, 1.0, 1.0, 1.0);\n"
-"}\n";
+#include <ShaderSource.h>
 
 Application::Application()
 {
@@ -35,40 +16,69 @@ Application::Application()
 	glGenVertexArrays(1, &vertexArrayID);
 	glBindVertexArray(vertexArrayID);
 
-	GLfloat vertexData[] = { -1.0f, -1.0f, 0.0f,
-		1.0f, -1.0f, 0.0f,
-		0.0f, 1.0f, 0.0f, };
+	GLfloat vertexData[] = { 
+		0.0f, 1.0f, 0.0f,
+		1.0f, 1.0f, 0.0f,
+		0.5f, 0.0f, 0.0f,
+		-1.0f, -1.0f, 0.0f,
+		0.0f, -1.0f, 0.0f,
+		-0.5f, 0.0f, 0.0f, };
 
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
 
 	program = glCreateProgram();
+	program2 = glCreateProgram();
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	fragmentShader2 = glCreateShader(GL_FRAGMENT_SHADER);
 	GLint result = GL_FALSE;
 	int infoLogLength;
 
-	glShaderSource(vertexShader, 1, &VERTEX_SOURCE, nullptr);
+	std::string shaderPath = ShaderSource::load("assets/shaders/trivial_vertex.glsl");
+	const char* temp = shaderPath.c_str();
+
+	glShaderSource(vertexShader, 1, &temp, nullptr);
 	glCompileShader(vertexShader);
 
-	glShaderSource(fragmentShader, 1, &FRAGMENT_SOURCE, nullptr);
+	shaderPath = ShaderSource::load("assets/shaders/trivial_fragment.glsl");
+	temp = shaderPath.c_str();
+
+	glShaderSource(fragmentShader, 1, &temp, nullptr);
 	glCompileShader(fragmentShader);
+
+	shaderPath = ShaderSource::load("assets/shaders/trivial_fragment2.glsl");
+	temp = shaderPath.c_str();
+
+	glShaderSource(fragmentShader2, 1, &temp, nullptr);
+	glCompileShader(fragmentShader2);
 
 	glAttachShader(program, vertexShader);
 	glAttachShader(program, fragmentShader);
 	glLinkProgram(program);
 
+	glAttachShader(program2, vertexShader);
+	glAttachShader(program2, fragmentShader2);
+	glLinkProgram(program2);
+
 	glGetProgramiv(program, GL_LINK_STATUS, &result);
 	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
 }
 
 Application::~Application()
 {
 	// Deinitialisation
+	glDisableVertexAttribArray(0);
+
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
+	glDeleteShader(fragmentShader2);
 
+	glDeleteProgram(program2);
 	glDeleteProgram(program);
 }
 
@@ -78,18 +88,9 @@ void Application::update()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glUseProgram(program);
 
-	glEnableVertexAttribArray(0);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glVertexAttribPointer(
-		0,
-		3,
-		GL_FLOAT,
-		GL_FALSE,
-		0,
-		(void*)0
-	);
-
 	glDrawArrays(GL_TRIANGLES, 0, 3);
 
-	glDisableVertexAttribArray(0);
+	glUseProgram(program2);
+
+	glDrawArrays(GL_TRIANGLES, 3, 3);
 }

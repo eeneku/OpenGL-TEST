@@ -23,6 +23,8 @@ public:
 private:
 
 	GLuint program;
+	GLuint program2;
+	GLuint fragmentShader2;
 	GLuint vertexShader;
 	GLuint fragmentShader;
 	GLuint vertexArrayID;
