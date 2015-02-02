@@ -5,6 +5,7 @@
  */
 
 #pragma once
+#include <vector>
 #include "GL/glew.h"
 
 class Application
@@ -22,9 +23,9 @@ public:
 
 private:
 
+	std::vector<unsigned short> indices;
+
 	GLuint program;
-	GLuint program2;
-	GLuint fragmentShader2;
 	GLuint vertexShader;
 	GLuint fragmentShader;
 	GLuint vertexArrayID;
