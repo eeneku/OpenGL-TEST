@@ -8,7 +8,7 @@
 #include <iostream>
 #include <GL/glew.h>
 #include <SDL/SDL.h>
-#include <Application.h>
+#include "Application.h"
 
 using namespace std;
 
