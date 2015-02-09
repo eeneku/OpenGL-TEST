@@ -2,34 +2,47 @@
  * @file Application.h
  *
  * OpenGL Template
+ * Copyright 2015 Eetu 'Devenec' Oinasmaa
+ *
+ * OpenGL Template is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
 #pragma once
+
+#include <GLM.h>
+#include <GL/glew.h>
 #include <vector>
-#include "GL/glew.h"
+
+namespace Config
+{
+	const int WINDOW_WIDTH = 1280;
+	const int WINDOW_HEIGHT = 720;
+	const int MULTISAMPLING_SAMPLES = 0; // 0 = disabled
+}
 
 class Application
 {
 public:
-
-	static const int WINDOW_WIDTH = 1280;
-	static const int WINDOW_HEIGHT = 720;
 
 	Application();
 
 	~Application();
 
 	void update();
-	GLuint make_texture(const char *filename);
-	short le_short(unsigned char *bytes);
-	void* read_tga(const char *filename, int *width, int *height);
-	void show_info_log(
-		GLuint object,
-		PFNGLGETSHADERIVPROC glGet__iv,
-		PFNGLGETSHADERINFOLOGPROC glGet__InfoLog
-		);
-
 private:
+
+	std::vector<unsigned short> indices;
 
 	GLuint program;
 	GLuint vertexShader;
@@ -37,16 +50,4 @@ private:
 	GLuint vertexArrayID;
 	GLuint vertexBuffer;
 	GLuint elementBuffer;
-	GLuint textures[2];
-	
-	struct {
-		GLint fade_factor;
-		GLint textures[2];
-	} uniforms;
-
-	struct {
-		GLint position;
-	} attributes;
-
-	GLfloat fade_factor;
 };
