@@ -23,11 +23,12 @@
 layout(location = 0) in vec4 inPosition;
 layout(location = 1) in vec4 vertexColor;
 
+uniform mat4 model;
 uniform mat4 MVP;
 out vec4 fragmentColor;
 
 void main()
 {
-	gl_Position = MVP * inPosition;
+	gl_Position = MVP * model * inPosition;
 	fragmentColor = vertexColor;
 }

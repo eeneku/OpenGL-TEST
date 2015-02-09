@@ -43,17 +43,19 @@ Application::Application()
 	// const unsigned int imageResult = lodepng::decode(imageData, imageWidth, imageHeight, "assets/FILENAME.png");
 	// imageResult == 0 when the image is loaded and decoded successfully
 
-	glm::mat4 projection = glm::perspective(glm::radians(60.0f), 
+	rotation = 0.0f;
+
+	projection = glm::perspective(glm::radians(60.0f), 
 		static_cast<float>(Config::WINDOW_WIDTH) / Config::WINDOW_HEIGHT, 
 		0.1f, 100.0f);
 
-	glm::mat4 view = glm::lookAt(
+	view = glm::lookAt(
 		glm::vec3(2, 2, 2),
 		glm::vec3(0, 0, 0),
 		glm::vec3(0, 1, 0)
 	);
 
-	glm::mat4 model = glm::mat4(1.0f);
+	model = glm::mat4(1.0f);
 	
 	glm::mat4 MVP = projection * view * model;
 
@@ -61,28 +63,44 @@ Application::Application()
 	glBindVertexArray(vertexArrayID);
 
 	GLfloat vertexData[] = {
-		0.0f, 0.0f, 0.0f,		// Taka ylä vasen	0
-		0.0f, 1.0f, 0.0f,		// Taka ala vasen	1
-		1.0f, 1.0f, 0.0f,		// Taka ala oikea	2
-		1.0f, 0.0f, 0.0f,		// Taka ylä oikea	3
+		-0.5f, -0.5f, -0.5f,		// Taka ylä vasen	0
+		-0.5f, 0.5f, -0.5f,		// Taka ala vasen	1
+		0.5f, 0.5f, -0.5f,		// Taka ala oikea	2
+		0.5f, -0.5f, -0.5f,		// Taka ylä oikea	3
 
-		0.0f, 0.0f, 1.0f,		// Etu ylä vasen	4
-		0.0f, 1.0f, 1.0f,		// Etu ala vasen	5
-		1.0f, 1.0f, 1.0f,		// Etu ala oikea	6
-		1.0f, 0.0f, 1.0f,		// Etu ylä oikea	7
+		-0.5f, -0.5f, 0.50f,		// Etu ylä vasen	4
+		-0.5f, 0.5f, 0.5f,		// Etu ala vasen	5
+		0.5f, 0.5f, 0.5f,		// Etu ala oikea	6
+		0.5f, -0.5f, 0.5f,		// Etu ylä oikea	7
 	};
 
 	GLfloat colorData[] = {
 		0.0f, 0.0f, 1.0f, 1.0f,	
 		0.0f, 1.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f, 1.0f,
-		0.0f, 1.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 1.0f, 1.0f,
 
-		0.0f, 0.0f, 1.0f, 1.0f,
-		0.0f, 1.0f, 0.0f, 1.0f,
-		0.0f, 0.0f, 1.0f, 1.0f,
-		0.0f, 1.0f, 0.0f, 1.0f
+		1.0f, 1.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 0.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
 	};
+
+	indices.push_back(0);
+	indices.push_back(3);
+	indices.push_back(4);
+
+	indices.push_back(4);
+	indices.push_back(7);
+	indices.push_back(3);
+
+	indices.push_back(2);
+	indices.push_back(1);
+	indices.push_back(5);
+
+	indices.push_back(5);
+	indices.push_back(6);
+	indices.push_back(2);
 
 	indices.push_back(0);
 	indices.push_back(1);
@@ -159,6 +177,7 @@ Application::Application()
 	GLuint loc = glGetUniformLocation(program, "MVP");
 	glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(MVP));
 
+	modelIndex = glGetUniformLocation(program, "model");
 
 	glGetProgramiv(program, GL_LINK_STATUS, &result);
 	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLength);
@@ -190,6 +209,10 @@ void Application::update()
 {
 	// Updating and drawing
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	rotation += 0.01f;
+	model = glm::rotate(rotation, glm::vec3(2.0f, 1.0f, 0.5f));
+	glUniformMatrix4fv(modelIndex, 1, GL_FALSE, value_ptr(model));
 
 	glUseProgram(program);
 

@@ -50,4 +50,9 @@ private:
 	GLuint vertexArrayID;
 	GLuint vertexBuffer;
 	GLuint elementBuffer;
+	GLint modelIndex;
+	float rotation;
+	glm::mat4 model;
+	glm::mat4 projection;
+	glm::mat4 view;
 };
