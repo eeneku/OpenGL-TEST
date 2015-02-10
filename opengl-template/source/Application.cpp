@@ -22,10 +22,10 @@ Application::Application()
 
 	GLint result_ok = false;
 	GLfloat vertexData[] = { 
-		-1.0f, -1.0f,
-		1.0f, -1.0f,
-		-1.0f, 1.0f,
-		1.0f, 1.0f
+		-0.3f, -0.3f,
+		0.3f, -0.3f,
+		-0.3f, 0.3f,
+		0.3f, 0.3f
 	};
 
 	GLushort indices[] { 0, 1, 2, 3 };
