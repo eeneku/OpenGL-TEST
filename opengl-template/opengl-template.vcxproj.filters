@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{353c6e87-78e3-46ad-bdd0-ef5d84354b86}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="source\Application.cpp">
@@ -24,6 +27,9 @@
     <ClCompile Include="source\ShaderSource.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="source\lodepng.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Application.h">
@@ -32,5 +38,19 @@
     <ClInclude Include="include\ShaderSource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\GLM.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\lodepng.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="assets\shaders\vertex.glsl">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="assets\shaders\fragment.glsl">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

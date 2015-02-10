@@ -2,99 +2,191 @@
  * @file Application.cpp
  *
  * OpenGL Template
+ * Copyright 2015 Eetu 'Devenec' Oinasmaa
+ *
+ * OpenGL Template is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <cassert>
-#include <cstdio>
-#include <cstdlib>
-#include "Application.h"
 #include <iostream>
-#include "ShaderSource.h"
+#include <string>
+#include <vector>
+#include <Application.h>
+#include <lodepng.h>
+#include <ShaderSource.h>
+
+// Public
 
 Application::Application()
 {
 	// Initialisation
 
-	fade_factor = 0.12f;
+	// Shader sources can be loaded from text files with static ShaderSource class:
+	// std::string source;
+	// const bool sourceResult = ShaderSource::load("assets/shaders/FILENAME", source);
+	// sourceResult == true when the source is loaded successfully
+
+	// Textures can be loaded from PNG files with LodePNG:
+	// unsigned int imageWidth;
+	// unsigned int imageHeight;
+	// std::vector<unsigned char> imageData;
+	// const unsigned int imageResult = lodepng::decode(imageData, imageWidth, imageHeight, "assets/FILENAME.png");
+	// imageResult == 0 when the image is loaded and decoded successfully
+
+	rotation = 0.0f;
+
+	projection = glm::perspective(glm::radians(60.0f), 
+		static_cast<float>(Config::WINDOW_WIDTH) / Config::WINDOW_HEIGHT, 
+		0.1f, 100.0f);
+
+	view = glm::lookAt(
+		glm::vec3(2, 2, 2),
+		glm::vec3(0, 0, 0),
+		glm::vec3(0, 1, 0)
+	);
+
+	model = glm::mat4(1.0f);
+	
+	glm::mat4 MVP = projection * view * model;
 
 	glGenVertexArrays(1, &vertexArrayID);
 	glBindVertexArray(vertexArrayID);
 
-	GLint result_ok = false;
 	GLfloat vertexData[] = { 
-		-0.3f, -0.3f,
-		0.3f, -0.3f,
-		-0.3f, 0.3f,
-		0.3f, 0.3f
+		-0.5f,	-0.5f,	-0.5f,		// Taka ylä vasen	0
+		-0.5f,	0.5f,	-0.5f,		// Taka ala vasen	1
+		0.5f,	0.5f,	-0.5f,		// Taka ala oikea	2
+		0.5f,	-0.5f,	-0.5f,		// Taka ylä oikea	3
+
+		-0.5f,	-0.5f,	0.50f,		// Etu ylä vasen	4
+		-0.5f,	0.5f,	0.5f,		// Etu ala vasen	5
+		0.5f,	0.5f,	0.5f,		// Etu ala oikea	6
+		0.5f,	-0.5f,	0.5f,		// Etu ylä oikea	7
 	};
 
-	GLushort indices[] { 0, 1, 2, 3 };
+	GLfloat colorData[] = {
+		0.0f, 0.0f, 1.0f, 1.0f,	
+		0.0f, 1.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		0.0f, 1.0f, 1.0f, 1.0f,
+
+		1.0f, 1.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 1.0f, 1.0f,
+		1.0f, 0.0f, 1.0f, 1.0f,
+		0.0f, 0.0f, 0.0f, 1.0f
+	};
+
+	indices.push_back(0);
+	indices.push_back(3);
+	indices.push_back(4);
+
+	indices.push_back(4);
+	indices.push_back(7);
+	indices.push_back(3);
+
+	indices.push_back(2);
+	indices.push_back(1);
+	indices.push_back(5);
+
+	indices.push_back(5);
+	indices.push_back(6);
+	indices.push_back(2);
+
+	indices.push_back(0);
+	indices.push_back(1);
+	indices.push_back(2);
+
+	indices.push_back(0);
+	indices.push_back(2);
+	indices.push_back(3);
+
+	indices.push_back(0);
+	indices.push_back(1);
+	indices.push_back(5);
+
+	indices.push_back(0);
+	indices.push_back(4);
+	indices.push_back(5);
+
+	indices.push_back(4);
+	indices.push_back(5);
+	indices.push_back(6);
+
+	indices.push_back(4);
+	indices.push_back(6);
+	indices.push_back(7);
+
+	indices.push_back(7);
+	indices.push_back(6);
+	indices.push_back(2);
+
+	indices.push_back(7);
+	indices.push_back(2);
+	indices.push_back(3);
 
 	glGenBuffers(1, &elementBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0], GL_STATIC_DRAW);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
+
+	glGenBuffers(1, &colorBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(colorData), colorData, GL_STATIC_DRAW);
 
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
 
-	textures[0] = make_texture("assets/textures/hello1.tga");
-	textures[1] = make_texture("assets/textures/hello2.tga");
-
-	assert(textures[0] != 0 || textures[1] != 0);
-
 	program = glCreateProgram();
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	GLint result = GL_FALSE;
+	int infoLogLength;
 
-	std::string shaderPath = ShaderSource::load("assets/shaders/trivial_vertex.glsl");
+	std::string shaderPath;
+	ShaderSource::load("assets/shaders/vertex.glsl", shaderPath);
 	const char* temp = shaderPath.c_str();
 
 	glShaderSource(vertexShader, 1, &temp, nullptr);
 	glCompileShader(vertexShader);
 
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &result_ok);
-	if (!result_ok) {
-		fprintf(stderr, "Failed to compile %s:\n", shaderPath);
-		show_info_log(vertexShader, glGetShaderiv, glGetShaderInfoLog);
-		glDeleteShader(vertexShader);
-	}
-
-	shaderPath = ShaderSource::load("assets/shaders/trivial_fragment.glsl");
+	ShaderSource::load("assets/shaders/fragment.glsl", shaderPath);
 	temp = shaderPath.c_str();
 
 	glShaderSource(fragmentShader, 1, &temp, nullptr);
 	glCompileShader(fragmentShader);
 
-	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &result_ok);
-	if (!result_ok) {
-		fprintf(stderr, "Failed to compile %s:\n", shaderPath);
-		show_info_log(fragmentShader, glGetShaderiv, glGetShaderInfoLog);
-		glDeleteShader(fragmentShader);
-	}
-
 	glAttachShader(program, vertexShader);
 	glAttachShader(program, fragmentShader);
 	glLinkProgram(program);
 
-	glGetProgramiv(program, GL_LINK_STATUS, &result_ok);
-	if (!result_ok) {
-		fprintf(stderr, "Failed to link shader program:\n");
-		show_info_log(program, glGetProgramiv, glGetProgramInfoLog);
-		glDeleteProgram(program);
-	}
+	glUseProgram(program);
+	GLuint loc = glGetUniformLocation(program, "MVP");
+	glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(MVP));
 
-	glDeleteShader(vertexShader);
-	glDeleteShader(fragmentShader);
+	modelIndex = glGetUniformLocation(program, "model");
 
+	glGetProgramiv(program, GL_LINK_STATUS, &result);
+	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogLength);
+
+	glEnableVertexAttribArray(0);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
-
-	uniforms.fade_factor = glGetUniformLocation(program, "fade_factor");
-	uniforms.textures[0] = glGetUniformLocation(program, "textures[0]");
-	uniforms.textures[1] = glGetUniformLocation(program, "textures[1]");
-
-	attributes.position = glGetAttribLocation(program, "position");
 }
 
 Application::~Application()
@@ -102,161 +194,53 @@ Application::~Application()
 	// Deinitialisation
 	glDeleteBuffers(1, &vertexBuffer);
 	glDeleteBuffers(1, &elementBuffer);
+	glDeleteBuffers(1, &colorBuffer);
 	glDeleteVertexArrays(1, &vertexArrayID);
 	glDeleteProgram(program);
+
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
 }
 
 void Application::update()
 
 {
 	// Updating and drawing
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	rotation += 0.01f;
+	model = glm::rotate(rotation, glm::vec3(2.0f, 1.0f, 0.5f));
+	glUniformMatrix4fv(modelIndex, 1, GL_FALSE, value_ptr(model));
+
 	glUseProgram(program);
-
-	glUniform1f(uniforms.fade_factor, fade_factor);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textures[0]);
-	glUniform1i(uniforms.textures[0], 0);
-
-	glActiveTexture(GL_TEXTURE1);
-	glBindTexture(GL_TEXTURE_2D, textures[1]);
-	glUniform1i(uniforms.textures[1], 1);
-
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glVertexAttribPointer(attributes.position,
-		2,
-		GL_FLOAT,
-		GL_FALSE,
-		sizeof(GLfloat) * 2,
-		(void*)0
-		);
-	glEnableVertexAttribArray(attributes.position);
-
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
-	glDrawElements(
-		GL_TRIANGLE_STRIP, 
-		4, 
-		GL_UNSIGNED_SHORT, 
-		(void*)0
-		);
-
-	glDisableVertexAttribArray(attributes.position);
+	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, (void*)0);
 }
 
-GLuint Application::make_texture(const char *filename)
+void Application::loadTexture(const std::string& path)
 {
-	GLuint texture;
-	int width, height;
-	void *pixels = read_tga(filename, &width, &height);
+	// TÄÄ TOIMI
+	std::vector<unsigned char> png;
+	std::vector<unsigned char> pixels;
 
-	if (!pixels)
-		return 0;
+	lodepng::load_file(png, path);
+	lodepng::decode(pixels, textureWidth, textureHeight, png.data(), png.size());
 
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
-	glTexImage2D(
-		GL_TEXTURE_2D, 0,
-		GL_RGB8,
-		width, height, 0,
-		GL_BGR, GL_UNSIGNED_BYTE,
-		pixels
-	);
 
-	free(pixels);
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());	
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 
-	return texture;
-}
-
-short Application::le_short(unsigned char *bytes)
-{
-	return bytes[0] | ((char)bytes[1] << 8);
-}
-
-void* Application::read_tga(const char *filename, int *width, int *height)
-{
-	struct tga_header {
-		char id_length;
-		char color_map_type;
-		char data_type_code;
-		unsigned char color_map_origin[2];
-		unsigned char color_map_length[2];
-		char color_map_depth;
-		unsigned char x_origin[2];
-		unsigned char y_origin[2];
-		unsigned char width[2];
-		unsigned char height[2];
-		char bits_per_pixel;
-		char image_descriptor;
-	} header;
-	int i, color_map_size, pixels_size;
-	FILE *f;
-	size_t read;
-	void *pixels;
-	f = fopen(filename, "rb");
-	if (!f) {
-		fprintf(stderr, "Unable to open %s for reading\n", filename);
-		return NULL;
-	}
-	read = fread(&header, 1, sizeof(header), f);
-	if (read != sizeof(header)) {
-		fprintf(stderr, "%s has incomplete tga header\n", filename);
-		fclose(f);
-		return NULL;
-	}
-	if (header.data_type_code != 2) {
-		fprintf(stderr, "%s is not an uncompressed RGB tga file\n", filename);
-		fclose(f);
-		return NULL;
-	}
-	if (header.bits_per_pixel != 24) {
-		fprintf(stderr, "%s is not a 24-bit uncompressed RGB tga file\n", filename);
-		fclose(f);
-		return NULL;
-	}
-	for (i = 0; i < header.id_length; ++i)
-		if (getc(f) == EOF) {
-			fprintf(stderr, "%s has incomplete id string\n", filename);
-			fclose(f);
-			return NULL;
-		}
-	color_map_size = le_short(header.color_map_length) * (header.color_map_depth / 8);
-	for (i = 0; i < color_map_size; ++i)
-		if (getc(f) == EOF) {
-			fprintf(stderr, "%s has incomplete color map\n", filename);
-			fclose(f);
-			return NULL;
-		}
-	*width = le_short(header.width); *height = le_short(header.height);
-	pixels_size = *width * *height * (header.bits_per_pixel / 8);
-	pixels = malloc(pixels_size);
-	read = fread(pixels, 1, pixels_size, f);
-	fclose(f);
-	if (read != pixels_size) {
-		fprintf(stderr, "%s has incomplete image\n", filename);
-		free(pixels);
-		return NULL;
-	}
-	return pixels;
-}
-
-void Application::show_info_log(
-	GLuint object,
-	PFNGLGETSHADERIVPROC glGet__iv,
-	PFNGLGETSHADERINFOLOGPROC glGet__InfoLog
-	)
-{
-	GLint log_length;
-	char *log;
-
-	glGet__iv(object, GL_INFO_LOG_LENGTH, &log_length);
-	log = (char*)malloc(log_length);
-	glGet__InfoLog(object, log_length, NULL, log);
-	fprintf(stderr, "%s", log);
-	free(log);
+	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 }
