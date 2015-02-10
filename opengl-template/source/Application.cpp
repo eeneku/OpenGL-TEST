@@ -63,15 +63,15 @@ Application::Application()
 	glBindVertexArray(vertexArrayID);
 
 	GLfloat vertexData[] = {
-		-0.5f, -0.5f, -0.5f,		// Taka ylä vasen	0
-		-0.5f, 0.5f, -0.5f,		// Taka ala vasen	1
-		0.5f, 0.5f, -0.5f,		// Taka ala oikea	2
-		0.5f, -0.5f, -0.5f,		// Taka ylä oikea	3
+		-0.5f,	-0.5f,	-0.5f,		// Taka ylä vasen	0
+		-0.5f,	0.5f,	-0.5f,		// Taka ala vasen	1
+		0.5f,	0.5f,	-0.5f,		// Taka ala oikea	2
+		0.5f,	-0.5f,	-0.5f,		// Taka ylä oikea	3
 
-		-0.5f, -0.5f, 0.50f,		// Etu ylä vasen	4
-		-0.5f, 0.5f, 0.5f,		// Etu ala vasen	5
-		0.5f, 0.5f, 0.5f,		// Etu ala oikea	6
-		0.5f, -0.5f, 0.5f,		// Etu ylä oikea	7
+		-0.5f,	-0.5f,	0.50f,		// Etu ylä vasen	4
+		-0.5f,	0.5f,	0.5f,		// Etu ala vasen	5
+		0.5f,	0.5f,	0.5f,		// Etu ala oikea	6
+		0.5f,	-0.5f,	0.5f,		// Etu ylä oikea	7
 	};
 
 	GLfloat colorData[] = {
@@ -134,14 +134,11 @@ Application::Application()
 	indices.push_back(2);
 	indices.push_back(3);
 
-
-	GLuint elementBuffer;
 	glGenBuffers(1, &elementBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0], GL_STATIC_DRAW);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
 
-	GLuint colorBuffer;
 	glGenBuffers(1, &colorBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(colorData), colorData, GL_STATIC_DRAW);
@@ -197,6 +194,7 @@ Application::~Application()
 	// Deinitialisation
 	glDeleteBuffers(1, &vertexBuffer);
 	glDeleteBuffers(1, &elementBuffer);
+	glDeleteBuffers(1, &colorBuffer);
 	glDeleteVertexArrays(1, &vertexArrayID);
 	glDeleteProgram(program);
 
@@ -209,12 +207,40 @@ void Application::update()
 {
 	// Updating and drawing
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+	
 	rotation += 0.01f;
 	model = glm::rotate(rotation, glm::vec3(2.0f, 1.0f, 0.5f));
 	glUniformMatrix4fv(modelIndex, 1, GL_FALSE, value_ptr(model));
 
 	glUseProgram(program);
-
 	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, (void*)0);
+}
+
+void Application::loadTexture(const std::string& path)
+{
+	// TÄÄ TOIMI
+	std::vector<unsigned char> png;
+	std::vector<unsigned char> pixels;
+
+	lodepng::load_file(png, path);
+	lodepng::decode(pixels, textureWidth, textureHeight, png.data(), png.size());
+
+	glGenTextures(1, &textureID);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, textureID);
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
+
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());	
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+	glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+
+	glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 }

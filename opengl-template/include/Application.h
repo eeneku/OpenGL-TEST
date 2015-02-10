@@ -28,7 +28,7 @@ namespace Config
 {
 	const int WINDOW_WIDTH = 1280;
 	const int WINDOW_HEIGHT = 720;
-	const int MULTISAMPLING_SAMPLES = 0; // 0 = disabled
+	const int MULTISAMPLING_SAMPLES = 16; // 0 = disabled
 }
 
 class Application
@@ -40,6 +40,7 @@ public:
 	~Application();
 
 	void update();
+	void loadTexture(const std::string& path);
 private:
 
 	std::vector<unsigned short> indices;
@@ -50,9 +51,14 @@ private:
 	GLuint vertexArrayID;
 	GLuint vertexBuffer;
 	GLuint elementBuffer;
+	GLuint colorBuffer;
 	GLint modelIndex;
 	float rotation;
 	glm::mat4 model;
 	glm::mat4 projection;
 	glm::mat4 view;
+
+	GLuint textureID;
+	GLuint textureWidth;
+	GLuint textureHeight;
 };
