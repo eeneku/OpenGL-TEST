@@ -107,17 +107,17 @@ Application::Application()
 		0.0f, 0.0f, 0.0f, 1.0f,
 	};
 
-	GLfloat texcoords[2*4*6] = {
-		0.0f,	1.0f,
-		1.0f,	1.0f,
-		1.0f,	0.0f,
-		0.0f,	0.0f,
+	GLfloat texcoords[2 * 4 * 6] = {
+		// front
+		0.0, 0.0,
+		1.0, 0.0,
+		1.0, 1.0,
+		0.0, 1.0,
 	};
-
 	for (int i = 1; i < 6; i++)
 		memcpy(&texcoords[i * 4 * 2], &texcoords[0], 2 * 4 * sizeof(GLfloat));
 
-	unsigned short indices[] = {
+	GLushort indices[] = {
 		// front
 		0, 1, 2,
 		2, 3, 0,
@@ -240,7 +240,7 @@ void Application::loadTexture(const std::string& path)
 	glBindTexture(GL_TEXTURE_2D, textureID);
 	glAssert();
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 
