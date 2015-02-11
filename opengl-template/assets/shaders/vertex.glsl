@@ -21,14 +21,14 @@
 #version 330
 
 layout(location = 0) in vec4 inPosition;
-layout(location = 1) in vec4 vertexColor;
+layout(location = 1) in vec2 vertexTexcoord;
 
 uniform mat4 model;
 uniform mat4 MVP;
-out vec4 fragmentColor;
+out vec2 fragmentTexcoord;
 
 void main()
 {
 	gl_Position = MVP * model * inPosition;
-	fragmentColor = vertexColor;
+	fragmentTexcoord = vertexTexcoord;
 }

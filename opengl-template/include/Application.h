@@ -52,6 +52,7 @@ private:
 	GLuint vertexBuffer;
 	GLuint elementBuffer;
 	GLuint colorBuffer;
+	GLuint texcoordBuffer;
 	GLint modelIndex;
 	float rotation;
 	glm::mat4 model;

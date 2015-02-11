@@ -20,10 +20,10 @@
 
 #version 330
 
-in vec4 fragmentColor;
-out vec4 outColour;
+in vec2 fragmentTexcoord;
+uniform sampler2D texture;
 
 void main()
 {
-	outColour = fragmentColor;
+	gl_FragColor = texture2D(texture, fragmentTexcoord);
 }
