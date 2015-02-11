@@ -24,7 +24,7 @@
 #include <Application.h>
 #include <lodepng.h>
 #include <ShaderSource.h>
-
+#define glAssert() assert(glGetError() == GL_NO_ERROR)
 // Public
 
 Application::Application()
@@ -50,7 +50,7 @@ Application::Application()
 		0.1f, 100.0f);
 
 	view = glm::lookAt(
-		glm::vec3(2, 2, 2),
+		glm::vec3(2, -2, 2),
 		glm::vec3(0, 0, 0),
 		glm::vec3(0, 1, 0)
 		);
@@ -63,15 +63,36 @@ Application::Application()
 	glBindVertexArray(vertexArrayID);
 
 	GLfloat vertexData[] = {
-		-0.5f, -0.5f, -0.5f,		// Taka ylä vasen	0
-		-0.5f, 0.5f, -0.5f,		// Taka ala vasen	1
-		0.5f, 0.5f, -0.5f,		// Taka ala oikea	2
-		0.5f, -0.5f, -0.5f,		// Taka ylä oikea	3
-
-		-0.5f, -0.5f, 0.50f,		// Etu ylä vasen	4
-		-0.5f, 0.5f, 0.5f,		// Etu ala vasen	5
-		0.5f, 0.5f, 0.5f,		// Etu ala oikea	6
-		0.5f, -0.5f, 0.5f,		// Etu ylä oikea	7
+		// front
+		-1.0, -1.0, 1.0,
+		1.0, -1.0, 1.0,
+		1.0, 1.0, 1.0,
+		-1.0, 1.0, 1.0,
+		// top
+		-1.0, 1.0, 1.0,
+		1.0, 1.0, 1.0,
+		1.0, 1.0, -1.0,
+		-1.0, 1.0, -1.0,
+		// back
+		1.0, -1.0, -1.0,
+		-1.0, -1.0, -1.0,
+		-1.0, 1.0, -1.0,
+		1.0, 1.0, -1.0,
+		// bottom
+		-1.0, -1.0, -1.0,
+		1.0, -1.0, -1.0,
+		1.0, -1.0, 1.0,
+		-1.0, -1.0, 1.0,
+		// left
+		-1.0, -1.0, -1.0,
+		-1.0, -1.0, 1.0,
+		-1.0, 1.0, 1.0,
+		-1.0, 1.0, -1.0,
+		// right
+		1.0, -1.0, 1.0,
+		1.0, -1.0, -1.0,
+		1.0, 1.0, -1.0,
+		1.0, 1.0, 1.0,
 	};
 
 	GLfloat colorData[] = {
@@ -87,62 +108,35 @@ Application::Application()
 	};
 
 	GLfloat texcoords[2*4*6] = {
-		0.0f,	0.0f,
-		1.0f,	0.0f,
-		1.0f,	1.0f,
 		0.0f,	1.0f,
+		1.0f,	1.0f,
+		1.0f,	0.0f,
+		0.0f,	0.0f,
 	};
 
 	for (int i = 1; i < 6; i++)
 		memcpy(&texcoords[i * 4 * 2], &texcoords[0], 2 * 4 * sizeof(GLfloat));
 
-	indices.push_back(0);
-	indices.push_back(3);
-	indices.push_back(4);
-
-	indices.push_back(4);
-	indices.push_back(7);
-	indices.push_back(3);
-
-	indices.push_back(2);
-	indices.push_back(1);
-	indices.push_back(5);
-
-	indices.push_back(5);
-	indices.push_back(6);
-	indices.push_back(2);
-
-	indices.push_back(0);
-	indices.push_back(1);
-	indices.push_back(2);
-
-	indices.push_back(0);
-	indices.push_back(2);
-	indices.push_back(3);
-
-	indices.push_back(0);
-	indices.push_back(1);
-	indices.push_back(5);
-
-	indices.push_back(0);
-	indices.push_back(4);
-	indices.push_back(5);
-
-	indices.push_back(4);
-	indices.push_back(5);
-	indices.push_back(6);
-
-	indices.push_back(4);
-	indices.push_back(6);
-	indices.push_back(7);
-
-	indices.push_back(7);
-	indices.push_back(6);
-	indices.push_back(2);
-
-	indices.push_back(7);
-	indices.push_back(2);
-	indices.push_back(3);
+	unsigned short indices[] = {
+		// front
+		0, 1, 2,
+		2, 3, 0,
+		// top
+		4, 5, 6,
+		6, 7, 4,
+		// back
+		8, 9, 10,
+		10, 11, 8,
+		// bottom
+		12, 13, 14,
+		14, 15, 12,
+		// left
+		16, 17, 18,
+		18, 19, 16,
+		// right
+		20, 21, 22,
+		22, 23, 20,
+	};
 
 	glGenBuffers(1, &texcoordBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, texcoordBuffer);
@@ -150,8 +144,7 @@ Application::Application()
 
 	glGenBuffers(1, &elementBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(unsigned short), &indices[0], GL_STATIC_DRAW);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	glGenBuffers(1, &colorBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
@@ -181,21 +174,15 @@ Application::Application()
 	glAttachShader(program, vertexShader);
 	glAttachShader(program, fragmentShader);
 	glLinkProgram(program);
-
 	glUseProgram(program);
-	GLuint loc = glGetUniformLocation(program, "MVP");
-	glUniformMatrix4fv(loc, 1, GL_FALSE, glm::value_ptr(MVP));
-
-	modelIndex = glGetUniformLocation(program, "model");
 
 	loadTexture("assets/textures/cube.png");
 
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	MVPIndex = glGetUniformLocation(program, "MVP");
+	modelIndex = glGetUniformLocation(program, "model");
+	textureIndex = glGetUniformLocation(program, "texture");
 
-	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, texcoordBuffer);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glUniformMatrix4fv(MVPIndex, 1, GL_FALSE, glm::value_ptr(MVP));
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 }
@@ -209,30 +196,35 @@ Application::~Application()
 	glDeleteVertexArrays(1, &vertexArrayID);
 	glDeleteProgram(program);
 	glDeleteTextures(1, &textureID);
-
-	glDisableVertexAttribArray(0);
-	glDisableVertexAttribArray(1);
+	glAssert();
 }
 
 void Application::update()
 
 {
 	// Updating and drawing
+
+	glEnableVertexAttribArray(0);
+	glEnableVertexAttribArray(1);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	glUseProgram(program);
-
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, textureID);
-	GLint uniformMyTexture = glGetUniformLocation(program, "texture");
-	glUniform1i(uniformMyTexture, 0);
 
 	rotation += 0.02f;
 	model = glm::rotate(rotation, glm::vec3(2.0f, 1.0f, 0.5f));
+
 	glUniformMatrix4fv(modelIndex, 1, GL_FALSE, value_ptr(model));
+	glUniform1i(textureIndex, 0);
 
+	glActiveTexture(GL_TEXTURE0);
+	glBindTexture(GL_TEXTURE_2D, textureID);
 
-	glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_SHORT, (void*)0);
+	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (void*)0);
+
+	glDisableVertexAttribArray(0);
+	glDisableVertexAttribArray(1);
 }
 
 void Application::loadTexture(const std::string& path)
@@ -246,9 +238,9 @@ void Application::loadTexture(const std::string& path)
 
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_2D, textureID);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glAssert();
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 

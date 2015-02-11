@@ -43,8 +43,6 @@ public:
 	void loadTexture(const std::string& path);
 private:
 
-	std::vector<unsigned short> indices;
-
 	GLuint program;
 	GLuint vertexShader;
 	GLuint fragmentShader;
@@ -53,7 +51,7 @@ private:
 	GLuint elementBuffer;
 	GLuint colorBuffer;
 	GLuint texcoordBuffer;
-	GLint modelIndex;
+	
 	float rotation;
 	glm::mat4 model;
 	glm::mat4 projection;
@@ -62,4 +60,8 @@ private:
 	GLuint textureID;
 	GLuint textureWidth;
 	GLuint textureHeight;
+
+	GLint textureIndex;
+	GLint modelIndex;
+	GLint MVPIndex;
 };
