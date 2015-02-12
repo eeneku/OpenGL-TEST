@@ -95,18 +95,6 @@ Application::Application()
 		1.0, 1.0, 1.0,
 	};
 
-	GLfloat colorData[] = {
-		0.0f, 0.0f, 1.0f, 1.0f,
-		0.0f, 1.0f, 0.0f, 1.0f,
-		1.0f, 0.0f, 0.0f, 1.0f,
-		0.0f, 1.0f, 1.0f, 1.0f,
-
-		1.0f, 1.0f, 0.0f, 1.0f,
-		1.0f, 1.0f, 1.0f, 1.0f,
-		1.0f, 0.0f, 1.0f, 1.0f,
-		0.0f, 0.0f, 0.0f, 1.0f,
-	};
-
 	GLfloat texcoords[2 * 4 * 6] = {
 		// front
 		0.0, 0.0,
@@ -151,8 +139,6 @@ Application::Application()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-
-
 	program = glCreateProgram();
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
 	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
@@ -195,7 +181,6 @@ Application::~Application()
 	glDeleteVertexArrays(1, &vertexArrayID);
 	glDeleteProgram(program);
 	glDeleteTextures(1, &textureID);
-	glAssert();
 }
 
 void Application::update()
@@ -216,7 +201,7 @@ void Application::update()
 	rotation += 0.02f;
 	model = glm::rotate(rotation, glm::vec3(2.0f, 1.0f, 0.5f));
 
-	glUniformMatrix4fv(modelIndex, 1, GL_FALSE, value_ptr(model));
+	glUniformMatrix4fv(modelIndex, 1, GL_FALSE, glm::value_ptr(model));
 	glUniform1i(textureIndex, 0);
 
 	glActiveTexture(GL_TEXTURE0);
@@ -239,9 +224,8 @@ void Application::loadTexture(const std::string& path)
 
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_2D, textureID);
-	glAssert();
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 

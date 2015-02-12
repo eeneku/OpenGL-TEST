@@ -49,7 +49,6 @@ private:
 	GLuint vertexArrayID;
 	GLuint vertexBuffer;
 	GLuint elementBuffer;
-	GLuint colorBuffer;
 	GLuint texcoordBuffer;
 	
 	float rotation;
