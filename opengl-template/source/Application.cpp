@@ -112,7 +112,7 @@ Application::Application()
 		0.0, 0.0,
 		1.0, 0.0,
 		1.0, 1.0,
-		0.0, 1.0,
+		0.0, 1.0
 	};
 	for (int i = 1; i < 6; i++)
 		memcpy(&texcoords[i * 4 * 2], &texcoords[0], 2 * 4 * sizeof(GLfloat));
@@ -138,6 +138,11 @@ Application::Application()
 		22, 23, 20,
 	};
 
+
+	glGenBuffers(1, &vertexBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
+
 	glGenBuffers(1, &texcoordBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, texcoordBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(texcoords), texcoords, GL_STATIC_DRAW);
@@ -146,13 +151,7 @@ Application::Application()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	glGenBuffers(1, &colorBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, colorBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(colorData), colorData, GL_STATIC_DRAW);
 
-	glGenBuffers(1, &vertexBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
 
 	program = glCreateProgram();
 	vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -192,7 +191,7 @@ Application::~Application()
 	// Deinitialisation
 	glDeleteBuffers(1, &vertexBuffer);
 	glDeleteBuffers(1, &elementBuffer);
-	glDeleteBuffers(1, &colorBuffer);
+	glDeleteBuffers(1, &texcoordBuffer);
 	glDeleteVertexArrays(1, &vertexArrayID);
 	glDeleteProgram(program);
 	glDeleteTextures(1, &textureID);
@@ -205,9 +204,11 @@ void Application::update()
 	// Updating and drawing
 
 	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-
+	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+	glEnableVertexAttribArray(1);
+	glBindBuffer(GL_ARRAY_BUFFER, texcoordBuffer);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -221,7 +222,7 @@ void Application::update()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (void*)0);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, (void*)0);
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);

@@ -21,9 +21,10 @@
 #version 330
 
 in vec2 fragmentTexcoord;
+out vec4 fragColor;
 uniform sampler2D texture;
 
 void main()
 {
-	gl_FragColor = texture2D(texture, fragmentTexcoord);
+	fragColor = texture2D(texture, vec2(fragmentTexcoord.x, -fragmentTexcoord.y));
 }
