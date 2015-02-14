@@ -50,14 +50,12 @@ Application::Application()
 		0.1f, 100.0f);
 
 	view = glm::lookAt(
-		glm::vec3(2, -2, 2),
+		glm::vec3(0, 0, 25),
 		glm::vec3(0, 0, 0),
 		glm::vec3(0, 1, 0)
 		);
 
 	model = glm::mat4(1.0f);
-
-	glm::mat4 MVP = projection * view * model;
 
 	glGenVertexArrays(1, &vertexArrayID);
 	glBindVertexArray(vertexArrayID);
@@ -95,6 +93,8 @@ Application::Application()
 		1.0, 1.0, 1.0,
 	};
 
+	vertexSize = sizeof(vertexData);
+
 	GLfloat texcoords[2 * 4 * 6] = {
 		// front
 		0.0, 0.0,
@@ -129,11 +129,10 @@ Application::Application()
 
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData), vertexData, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData) + sizeof(texcoords), NULL, GL_STATIC_DRAW);
 
-	glGenBuffers(1, &texcoordBuffer);
-	glBindBuffer(GL_ARRAY_BUFFER, texcoordBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(texcoords), texcoords, GL_STATIC_DRAW);
+	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertexData), vertexData);
+	glBufferSubData(GL_ARRAY_BUFFER, sizeof(vertexData), sizeof(texcoords), texcoords);
 
 	glGenBuffers(1, &elementBuffer);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
@@ -164,10 +163,7 @@ Application::Application()
 	loadTexture("assets/textures/cube.png");
 
 	MVPIndex = glGetUniformLocation(program, "MVP");
-	modelIndex = glGetUniformLocation(program, "model");
 	textureIndex = glGetUniformLocation(program, "texture");
-
-	glUniformMatrix4fv(MVPIndex, 1, GL_FALSE, glm::value_ptr(MVP));
 
 	glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
 }
@@ -190,19 +186,21 @@ void Application::update()
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
 
 	glEnableVertexAttribArray(1);
-	glBindBuffer(GL_ARRAY_BUFFER, texcoordBuffer);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (void*)0);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)vertexSize);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	rotation += 0.02f;
-	model = glm::rotate(rotation, glm::vec3(2.0f, 1.0f, 0.5f));
-
-	glUniformMatrix4fv(modelIndex, 1, GL_FALSE, glm::value_ptr(model));
+	// Ololoo translate ja rotatee ja scalee
+	rotation += 0.0001f;
+	
+	model = glm::scale(model, glm::vec3(1.0f + rotation, 1.0f + rotation, 1.0f + rotation));
+	model = glm::rotate(model, rotation, glm::vec3(0.0f, 0.0f, 2.0f));
+	model = glm::translate(model, glm::vec3(0.0f, 0.0f, rotation));
 	glUniform1i(textureIndex, 0);
+	glUniformMatrix4fv(MVPIndex, 1, GL_FALSE, glm::value_ptr(projection*view*model));
 
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureID);

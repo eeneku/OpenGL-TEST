@@ -63,4 +63,6 @@ private:
 	GLint textureIndex;
 	GLint modelIndex;
 	GLint MVPIndex;
+
+	GLint vertexSize;
 };

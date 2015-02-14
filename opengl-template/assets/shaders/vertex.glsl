@@ -21,14 +21,13 @@
 #version 330
 
 layout(location = 0) in vec4 inPosition;
-layout(location = 1) in vec2 vertexTexcoord;
+layout(location = 1) in vec2 inTexcoords;
 
-uniform mat4 model;
 uniform mat4 MVP;
-out vec2 fragmentTexcoord;
+out vec2 texcoords;
 
 void main()
 {
-	gl_Position = MVP * model * inPosition;
-	fragmentTexcoord = vertexTexcoord;
+	gl_Position = MVP * inPosition;
+	texcoords = inTexcoords;
 }
