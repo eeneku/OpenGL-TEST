@@ -165,7 +165,7 @@ Application::Application()
 	glLinkProgram(program);
 	glUseProgram(program);
 
-	loadTexture("assets/textures/pidginz.png");
+	loadTexture("assets/textures/cube.png");
 
 	MVPIndex = glGetUniformLocation(program, "MVP");
 	textureIndex = glGetUniformLocation(program, "texture");
