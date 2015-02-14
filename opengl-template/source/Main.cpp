@@ -94,6 +94,28 @@ static void loop(SDL_Window* window)
 		{
 			if (event.type == SDL_QUIT || (event.type == SDL_KEYDOWN && event.key.keysym.sym == SDLK_ESCAPE))
 				exit = true;
+			if (event.type == SDL_KEYDOWN)
+			{
+				if (event.key.keysym.sym == SDLK_UP)
+					application.moveUp = true;
+				if (event.key.keysym.sym == SDLK_DOWN)
+					application.moveDown = true;
+				if (event.key.keysym.sym == SDLK_LEFT)
+					application.moveLeft = true;
+				if (event.key.keysym.sym == SDLK_RIGHT)
+					application.moveRight = true;
+			}
+			if (event.type == SDL_KEYUP)
+			{
+				if (event.key.keysym.sym == SDLK_UP)
+					application.moveUp = false;
+				if (event.key.keysym.sym == SDLK_DOWN)
+					application.moveDown = false;
+				if (event.key.keysym.sym == SDLK_LEFT)
+					application.moveLeft = false;
+				if (event.key.keysym.sym == SDLK_RIGHT)
+					application.moveRight = false;
+			}
 		}
 
 		application.update();

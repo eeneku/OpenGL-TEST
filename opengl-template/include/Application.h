@@ -34,22 +34,22 @@ namespace Config
 class Application
 {
 public:
-
 	Application();
-
 	~Application();
 
 	void update();
 	void loadTexture(const std::string& path);
+
+	bool moveUp;
+	bool moveDown;
+	bool moveLeft;
+	bool moveRight;
 private:
 
 	GLuint program;
-	GLuint vertexShader;
-	GLuint fragmentShader;
 	GLuint vertexArrayID;
 	GLuint vertexBuffer;
 	GLuint elementBuffer;
-	GLuint texcoordBuffer;
 	
 	float rotation;
 	glm::mat4 model;
@@ -57,12 +57,11 @@ private:
 	glm::mat4 view;
 
 	GLuint textureID;
-	GLuint textureWidth;
-	GLuint textureHeight;
 
 	GLint textureIndex;
-	GLint modelIndex;
 	GLint MVPIndex;
 
 	GLint vertexSize;
+
+	float moveSpeed;
 };

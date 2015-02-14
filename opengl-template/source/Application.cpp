@@ -44,13 +44,18 @@ Application::Application()
 	// imageResult == 0 when the image is loaded and decoded successfully
 
 	rotation = 0.0f;
+	moveUp = false;
+	moveDown = false;
+	moveRight = false;
+	moveLeft = false;
+	moveSpeed = 0.1f;
 
 	projection = glm::perspective(glm::radians(60.0f),
 		static_cast<float>(Config::WINDOW_WIDTH) / Config::WINDOW_HEIGHT,
 		0.1f, 100.0f);
 
 	view = glm::lookAt(
-		glm::vec3(0, 0, 25),
+		glm::vec3(0, 0, 15),
 		glm::vec3(0, 0, 0),
 		glm::vec3(0, 1, 0)
 		);
@@ -139,8 +144,8 @@ Application::Application()
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	program = glCreateProgram();
-	vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
+	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
+	GLuint fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 
 	std::string shaderPath;
 	ShaderSource::load("assets/shaders/vertex.glsl", shaderPath);
@@ -160,7 +165,7 @@ Application::Application()
 	glLinkProgram(program);
 	glUseProgram(program);
 
-	loadTexture("assets/textures/cube.png");
+	loadTexture("assets/textures/pidginz.png");
 
 	MVPIndex = glGetUniformLocation(program, "MVP");
 	textureIndex = glGetUniformLocation(program, "texture");
@@ -173,7 +178,6 @@ Application::~Application()
 	// Deinitialisation
 	glDeleteBuffers(1, &vertexBuffer);
 	glDeleteBuffers(1, &elementBuffer);
-	glDeleteBuffers(1, &texcoordBuffer);
 	glDeleteVertexArrays(1, &vertexArrayID);
 	glDeleteProgram(program);
 	glDeleteTextures(1, &textureID);
@@ -183,6 +187,14 @@ void Application::update()
 
 {
 	// Updating and drawing
+	if (moveUp)
+		model = glm::translate(model, glm::vec3(0.0f, moveSpeed, 0.0f));
+	if (moveDown)
+		model = glm::translate(model, glm::vec3(0.0f, -moveSpeed, 0.0f));
+	if (moveLeft)
+		model = glm::translate(model, glm::vec3(-moveSpeed, 0.0f, 0.0f));
+	if (moveRight)
+		model = glm::translate(model, glm::vec3(moveSpeed, 0.0f, 0.0f));
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
@@ -194,11 +206,12 @@ void Application::update()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	// Ololoo translate ja rotatee ja scalee
-	rotation += 0.0001f;
+	//rotation += 0.0001f;
 	
-	model = glm::scale(model, glm::vec3(1.0f + rotation, 1.0f + rotation, 1.0f + rotation));
-	model = glm::rotate(model, rotation, glm::vec3(0.0f, 0.0f, 2.0f));
-	model = glm::translate(model, glm::vec3(0.0f, 0.0f, rotation));
+
+	//model = glm::scale(model, glm::vec3(1.0f + rotation, 1.0f + rotation, 1.0f + rotation));
+
+	//model = glm::rotate(model, rotation, glm::vec3(0.0f, 0.0f, 2.0f));
 	glUniform1i(textureIndex, 0);
 	glUniformMatrix4fv(MVPIndex, 1, GL_FALSE, glm::value_ptr(projection*view*model));
 
@@ -216,15 +229,17 @@ void Application::loadTexture(const std::string& path)
 	// TÄÄ TOIMI
 	std::vector<unsigned char> png;
 	std::vector<unsigned char> pixels;
+	GLuint width;
+	GLuint height;
 
 	lodepng::load_file(png, path);
-	lodepng::decode(pixels, textureWidth, textureHeight, png.data(), png.size());
+	lodepng::decode(pixels, width, height, png.data(), png.size());
 
 	glGenTextures(1, &textureID);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, textureWidth, textureHeight, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, pixels.data());
 
 }
