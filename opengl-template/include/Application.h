@@ -40,10 +40,10 @@ public:
 	void update();
 	void loadTexture(const std::string& path);
 
-	bool moveUp;
-	bool moveDown;
-	bool moveLeft;
-	bool moveRight;
+	bool moveForward;
+	bool moveBackward;
+	bool turnLeft;
+	bool turnRight;
 private:
 
 	GLuint program;
@@ -64,4 +64,5 @@ private:
 	GLint vertexSize;
 
 	float moveSpeed;
+	float turnSpeed;
 };

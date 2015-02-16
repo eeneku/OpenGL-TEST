@@ -44,11 +44,12 @@ Application::Application()
 	// imageResult == 0 when the image is loaded and decoded successfully
 
 	rotation = 0.0f;
-	moveUp = false;
-	moveDown = false;
-	moveRight = false;
-	moveLeft = false;
+	moveForward = false;
+	moveBackward = false;
+	turnLeft = false;
+	turnRight = false;
 	moveSpeed = 0.1f;
+	turnSpeed = 0.05f;
 
 	projection = glm::perspective(glm::radians(60.0f),
 		static_cast<float>(Config::WINDOW_WIDTH) / Config::WINDOW_HEIGHT,
@@ -187,14 +188,14 @@ void Application::update()
 
 {
 	// Updating and drawing
-	if (moveUp)
+	if (turnLeft)
+		model = glm::rotate(model, turnSpeed, glm::vec3(0.0f, 0.0f, 1.0f));
+	if (turnRight)
+		model = glm::rotate(model, turnSpeed, glm::vec3(0.0f, 0.0f, -1.0f));
+	if (moveForward)
 		model = glm::translate(model, glm::vec3(0.0f, moveSpeed, 0.0f));
-	if (moveDown)
+	if (moveBackward)
 		model = glm::translate(model, glm::vec3(0.0f, -moveSpeed, 0.0f));
-	if (moveLeft)
-		model = glm::translate(model, glm::vec3(-moveSpeed, 0.0f, 0.0f));
-	if (moveRight)
-		model = glm::translate(model, glm::vec3(moveSpeed, 0.0f, 0.0f));
 
 	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);

@@ -97,24 +97,24 @@ static void loop(SDL_Window* window)
 			if (event.type == SDL_KEYDOWN)
 			{
 				if (event.key.keysym.sym == SDLK_UP)
-					application.moveUp = true;
+					application.moveForward = true;
 				if (event.key.keysym.sym == SDLK_DOWN)
-					application.moveDown = true;
+					application.moveBackward = true;
 				if (event.key.keysym.sym == SDLK_LEFT)
-					application.moveLeft = true;
+					application.turnLeft = true;
 				if (event.key.keysym.sym == SDLK_RIGHT)
-					application.moveRight = true;
+					application.turnRight = true;
 			}
 			if (event.type == SDL_KEYUP)
 			{
 				if (event.key.keysym.sym == SDLK_UP)
-					application.moveUp = false;
+					application.moveForward = false;
 				if (event.key.keysym.sym == SDLK_DOWN)
-					application.moveDown = false;
+					application.moveBackward = false;
 				if (event.key.keysym.sym == SDLK_LEFT)
-					application.moveLeft = false;
+					application.turnLeft = false;
 				if (event.key.keysym.sym == SDLK_RIGHT)
-					application.moveRight = false;
+					application.turnRight = false;
 			}
 		}
 
