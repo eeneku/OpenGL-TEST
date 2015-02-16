@@ -109,7 +109,7 @@ Application::Application()
 		0.0, 1.0
 	};
 	for (int i = 1; i < 6; i++)
-		memcpy(&texcoords[i * 4 * 2], &texcoords[0], 2 * 4 * sizeof(GLfloat));
+		memcpy(&texcoords[i * 4 *  2], &texcoords[0], 2 * 4 * sizeof(GLfloat));
 
 	GLushort indices[] = {
 		// front
@@ -189,9 +189,15 @@ void Application::update()
 {
 	// Updating and drawing
 	if (turnLeft)
+	{
 		model = glm::rotate(model, turnSpeed, glm::vec3(0.0f, 0.0f, 1.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f + (turnSpeed/2)));
+	}
 	if (turnRight)
+	{
 		model = glm::rotate(model, turnSpeed, glm::vec3(0.0f, 0.0f, -1.0f));
+		model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f - (turnSpeed/2)));
+	}
 	if (moveForward)
 		model = glm::translate(model, glm::vec3(0.0f, moveSpeed, 0.0f));
 	if (moveBackward)
