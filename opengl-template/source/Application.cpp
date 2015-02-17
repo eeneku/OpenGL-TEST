@@ -43,6 +43,8 @@ Application::Application()
 	// const unsigned int imageResult = lodepng::decode(imageData, imageWidth, imageHeight, "assets/FILENAME.png");
 	// imageResult == 0 when the image is loaded and decoded successfully
 
+	mesh.loadFromFile("assets/meshes/cube.obj");
+
 	rotation = 0.0f;
 	moveForward = false;
 	moveBackward = false;
@@ -66,83 +68,9 @@ Application::Application()
 	glGenVertexArrays(1, &vertexArrayID);
 	glBindVertexArray(vertexArrayID);
 
-	GLfloat vertexData[] = {
-		// front
-		-1.0, -1.0, 1.0,
-		1.0, -1.0, 1.0,
-		1.0, 1.0, 1.0,
-		-1.0, 1.0, 1.0,
-		// top
-		-1.0, 1.0, 1.0,
-		1.0, 1.0, 1.0,
-		1.0, 1.0, -1.0,
-		-1.0, 1.0, -1.0,
-		// back
-		1.0, -1.0, -1.0,
-		-1.0, -1.0, -1.0,
-		-1.0, 1.0, -1.0,
-		1.0, 1.0, -1.0,
-		// bottom
-		-1.0, -1.0, -1.0,
-		1.0, -1.0, -1.0,
-		1.0, -1.0, 1.0,
-		-1.0, -1.0, 1.0,
-		// left
-		-1.0, -1.0, -1.0,
-		-1.0, -1.0, 1.0,
-		-1.0, 1.0, 1.0,
-		-1.0, 1.0, -1.0,
-		// right
-		1.0, -1.0, 1.0,
-		1.0, -1.0, -1.0,
-		1.0, 1.0, -1.0,
-		1.0, 1.0, 1.0,
-	};
-
-	vertexSize = sizeof(vertexData);
-
-	GLfloat texcoords[2 * 4 * 6] = {
-		// front
-		0.0, 0.0,
-		1.0, 0.0,
-		1.0, 1.0,
-		0.0, 1.0
-	};
-	for (int i = 1; i < 6; i++)
-		memcpy(&texcoords[i * 4 *  2], &texcoords[0], 2 * 4 * sizeof(GLfloat));
-
-	GLushort indices[] = {
-		// front
-		0, 1, 2,
-		2, 3, 0,
-		// top
-		4, 5, 6,
-		6, 7, 4,
-		// back
-		8, 9, 10,
-		10, 11, 8,
-		// bottom
-		12, 13, 14,
-		14, 15, 12,
-		// left
-		16, 17, 18,
-		18, 19, 16,
-		// right
-		20, 21, 22,
-		22, 23, 20,
-	};
-
-
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData) + sizeof(texcoords), NULL, GL_STATIC_DRAW);
-
-	glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(vertexData), vertexData);
-	glBufferSubData(GL_ARRAY_BUFFER, sizeof(vertexData), sizeof(texcoords), texcoords);
-
-	glGenBuffers(1, &elementBuffer);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, mesh.getVertices().size() * sizeof(GLfloat), mesh.getVertices().data(), GL_STATIC_DRAW);
 
 	program = glCreateProgram();
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -178,7 +106,6 @@ Application::~Application()
 {
 	// Deinitialisation
 	glDeleteBuffers(1, &vertexBuffer);
-	glDeleteBuffers(1, &elementBuffer);
 	glDeleteVertexArrays(1, &vertexArrayID);
 	glDeleteProgram(program);
 	glDeleteTextures(1, &textureID);
@@ -197,12 +124,15 @@ void Application::update()
 	if (moveBackward)
 		model = glm::translate(model, glm::vec3(0.0f, -moveSpeed, 0.0f));
 
-	glEnableVertexAttribArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*)0);
 
+	glEnableVertexAttribArray(0);
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, (GLvoid*)vertexSize);
+	glEnableVertexAttribArray(2);
+
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, nullptr);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (GLvoid*)(sizeof(GLfloat) * 3));
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (GLvoid*)(sizeof(GLfloat) * 5));
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -219,7 +149,7 @@ void Application::update()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 
-	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, (void*)0);
+	glDrawArrays(GL_TRIANGLES, 0, mesh.getVertices().size());
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);

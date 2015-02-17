@@ -23,6 +23,7 @@
 #include <GLM.h>
 #include <GL/glew.h>
 #include <vector>
+#include "mesh.h"
 
 namespace Config
 {
@@ -61,8 +62,8 @@ private:
 	GLint textureIndex;
 	GLint MVPIndex;
 
-	GLint vertexSize;
-
 	float moveSpeed;
 	float turnSpeed;
+
+	Mesh mesh;
 };

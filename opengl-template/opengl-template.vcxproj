@@ -92,12 +92,14 @@
     <ClCompile Include="source\Application.cpp" />
     <ClCompile Include="source\lodepng.cpp" />
     <ClCompile Include="source\Main.cpp" />
+    <ClCompile Include="source\mesh.cpp" />
     <ClCompile Include="source\ShaderSource.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Application.h" />
     <ClInclude Include="include\GLM.h" />
     <ClInclude Include="include\lodepng.h" />
+    <ClInclude Include="include\mesh.h" />
     <ClInclude Include="include\ShaderSource.h" />
   </ItemGroup>
   <ItemGroup>
