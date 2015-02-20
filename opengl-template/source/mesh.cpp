@@ -38,9 +38,7 @@ void Mesh::indexVBO(std::vector<glm::vec3>& inVertices, std::vector<glm::vec2>& 
 			indices.push_back(index);
 		else
 		{
-			vertices.push_back(inVertices[i]);
-			uvs.push_back(inUvs[i]);
-			normals.push_back(inNormals[i]);
+			vertices.push_back(vertex);
 
 			GLushort newIndex = (GLushort)vertices.size() - 1;
 			indices.push_back(newIndex);
@@ -49,7 +47,7 @@ void Mesh::indexVBO(std::vector<glm::vec3>& inVertices, std::vector<glm::vec2>& 
 	}
 }
 
-bool Mesh::loadFromFile(const std::string& path)
+bool Mesh::load(const std::string& path)
 {
 	std::ifstream file(path);
 
@@ -91,7 +89,7 @@ bool Mesh::loadFromFile(const std::string& path)
 			{
 				for (size_t i = 0; i < 3; i++) 
 				{
-					GLuint v, t, n;
+					GLushort v, t, n;
 					char c;
 
 					ss >> v >> c >> t >> c >> n >> std::ws;
@@ -107,19 +105,16 @@ bool Mesh::loadFromFile(const std::string& path)
 
 		for (size_t i = 0; i < vIndices.size(); i++) 
 		{
-			glm::vec3& vertex = inVertices[vIndices[i] - 1];
-			tVertices.push_back(vertex);
+			tVertices.push_back(inVertices[vIndices[i] - 1]);
 
 			if (inUvs.size() > 0)
 			{
-				glm::vec2& uv = inUvs[tIndices[i] - 1];
-				tUvs.push_back(uv);
+				tUvs.push_back(inUvs[tIndices[i] - 1]);
 			}
 
 			if (inNormals.size() > 0)
 			{ 
-				glm::vec3& normal = inNormals[nIndices[i] - 1];
-				tNormals.push_back(normal);
+				tNormals.push_back(inNormals[nIndices[i] - 1]);
 			}
 		}
 
