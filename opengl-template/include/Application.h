@@ -51,6 +51,8 @@ private:
 	GLuint vertexArrayID;
 	GLuint vertexBuffer;
 	GLuint elementBuffer;
+	GLuint normalBuffer;
+	GLuint uvBuffer;
 	
 	float rotation;
 	glm::mat4 model;

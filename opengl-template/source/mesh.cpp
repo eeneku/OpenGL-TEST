@@ -10,46 +10,87 @@ Mesh::~Mesh()
 {
 }
 
+bool Mesh::getSimilarVertexIndex(Vertex& vertex, std::map<Vertex, GLushort>& vertexToOutIndex, GLushort& result)
+{
+	std::map<Vertex, GLushort>::iterator it = vertexToOutIndex.find(vertex);
+
+	if (it == vertexToOutIndex.end())
+		return false;
+	else
+	{
+		result = it->second;
+		return true;
+	}
+}
+
+void Mesh::indexVBO(std::vector<glm::vec3>& inVertices, std::vector<glm::vec2>& inUvs, std::vector<glm::vec3>& inNormals)
+{
+	std::map<Vertex, GLushort> vertexToOutIndex;
+
+	for (unsigned int i = 0; i < inVertices.size(); i++)
+	{
+		Vertex vertex = { inVertices[i], inUvs[i], inNormals[i] };
+
+		GLushort index;
+		bool found = getSimilarVertexIndex(vertex, vertexToOutIndex, index);
+
+		if (found)
+			indices.push_back(index);
+		else
+		{
+			vertices.push_back(inVertices[i]);
+			uvs.push_back(inUvs[i]);
+			normals.push_back(inNormals[i]);
+
+			GLushort newIndex = (GLushort)vertices.size() - 1;
+			indices.push_back(newIndex);
+			vertexToOutIndex[vertex] = newIndex;
+		}
+	}
+}
+
 bool Mesh::loadFromFile(const std::string& path)
 {
-	std::ifstream in(path);
+	std::ifstream file(path);
 
-	if (in.is_open())
+	if (file.is_open())
 	{
 		std::vector<GLushort> vIndices, tIndices, nIndices;
-		std::vector<glm::vec3> tmpVertices, tmpNormals;
-		std::vector<glm::vec2> tmpUvs;
+		std::vector<glm::vec3> inVertices, inNormals;
+		std::vector<glm::vec2> inUvs;
 
-		while (!in.eof()) {
+		while (!file.eof()) 
+		{
 			std::string line;
 			std::string prefix;
 			std::stringstream ss;
 
-			std::getline(in, line);
+			std::getline(file, line);
 			ss << line;
 			ss >> prefix >> std::ws;
 
-			if (prefix == "v") {
-				//vertex
+			if (prefix == "v") 
+			{
 				glm::vec3 v;
 				ss >> v.x >> v.y >> v.z >> std::ws;
-				tmpVertices.push_back(v);
+				inVertices.push_back(v);
 			}
-			else if (prefix == "vt") {
-				// texture coord
+			else if (prefix == "vt") 
+			{
 				glm::vec2 uv;
 				ss >> uv.x >> uv.y >> std::ws;
-				tmpUvs.push_back(uv);
+				inUvs.push_back(uv);
 			}
-			else if (prefix == "vn") {
-				// normal
+			else if (prefix == "vn") 
+			{
 				glm::vec3 v;
 				ss >> v.x >> v.y >> v.z >> std::ws;
-				tmpNormals.push_back(v);
+				inNormals.push_back(v);
 			}
-			else if (prefix == "f") {
-				// index
-				for (size_t i = 0; i < 3; i++) {
+			else if (prefix == "f") 
+			{
+				for (size_t i = 0; i < 3; i++) 
+				{
 					GLuint v, t, n;
 					char c;
 
@@ -61,28 +102,28 @@ bool Mesh::loadFromFile(const std::string& path)
 			}
 		}
 
-		// f = v/vt/vn
-		for (size_t i = 0; i < vIndices.size(); i++) {
-			glm::vec3& vertex = tmpVertices[vIndices[i] - 1];
-			vertices.push_back(vertex.x);
-			vertices.push_back(vertex.y);
-			vertices.push_back(vertex.z);
+		std::vector <glm::vec3> tVertices, tNormals;
+		std::vector <glm::vec2> tUvs;
 
-			if (tmpUvs.size() > 0)
+		for (size_t i = 0; i < vIndices.size(); i++) 
+		{
+			glm::vec3& vertex = inVertices[vIndices[i] - 1];
+			tVertices.push_back(vertex);
+
+			if (inUvs.size() > 0)
 			{
-				glm::vec2& uv = tmpUvs[tIndices[i] - 1];
-				vertices.push_back(uv.x);
-				vertices.push_back(uv.y);
+				glm::vec2& uv = inUvs[tIndices[i] - 1];
+				tUvs.push_back(uv);
 			}
 
-			if (tmpNormals.size() > 0)
+			if (inNormals.size() > 0)
 			{ 
-				glm::vec3& normal = tmpNormals[nIndices[i] - 1];
-				vertices.push_back(normal.x);
-				vertices.push_back(normal.y);
-				vertices.push_back(normal.z);
+				glm::vec3& normal = inNormals[nIndices[i] - 1];
+				tNormals.push_back(normal);
 			}
 		}
+
+		indexVBO(tVertices, tUvs, tNormals);
 	}
 	else return false;
 

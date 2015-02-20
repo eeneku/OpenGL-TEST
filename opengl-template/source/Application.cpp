@@ -43,7 +43,7 @@ Application::Application()
 	// const unsigned int imageResult = lodepng::decode(imageData, imageWidth, imageHeight, "assets/FILENAME.png");
 	// imageResult == 0 when the image is loaded and decoded successfully
 
-	mesh.loadFromFile("assets/meshes/cube.obj");
+	mesh.loadFromFile("assets/meshes/cube.mesh");
 
 	rotation = 0.0f;
 	moveForward = false;
@@ -70,7 +70,19 @@ Application::Application()
 
 	glGenBuffers(1, &vertexBuffer);
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-	glBufferData(GL_ARRAY_BUFFER, mesh.getVertices().size() * sizeof(GLfloat), mesh.getVertices().data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, mesh.getVertices().size() * sizeof(glm::vec3), mesh.getVertices().data(), GL_STATIC_DRAW);
+
+	glGenBuffers(1, &uvBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
+	glBufferData(GL_ARRAY_BUFFER, mesh.getUvs().size() * sizeof(glm::vec2), mesh.getUvs().data(), GL_STATIC_DRAW);
+
+	glGenBuffers(1, &normalBuffer);
+	glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+	glBufferData(GL_ARRAY_BUFFER, mesh.getNormals().size() * sizeof(glm::vec3), mesh.getNormals().data(), GL_STATIC_DRAW);
+
+	glGenBuffers(1, &elementBuffer);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, mesh.getIndices().size() * sizeof(GLushort), mesh.getIndices().data(), GL_STATIC_DRAW);
 
 	program = glCreateProgram();
 	GLuint vertexShader = glCreateShader(GL_VERTEX_SHADER);
@@ -125,14 +137,16 @@ void Application::update()
 		model = glm::translate(model, glm::vec3(0.0f, -moveSpeed, 0.0f));
 
 	glBindBuffer(GL_ARRAY_BUFFER, vertexBuffer);
-
 	glEnableVertexAttribArray(0);
-	glEnableVertexAttribArray(1);
-	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, nullptr);
-	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (GLvoid*)(sizeof(GLfloat) * 3));
-	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, sizeof(GLfloat) * 8, (GLvoid*)(sizeof(GLfloat) * 5));
+	glBindBuffer(GL_ARRAY_BUFFER, uvBuffer);
+	glEnableVertexAttribArray(1);
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, nullptr);
+
+	glBindBuffer(GL_ARRAY_BUFFER, normalBuffer);
+	glEnableVertexAttribArray(2);
+	glVertexAttribPointer(2, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
@@ -149,7 +163,7 @@ void Application::update()
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, textureID);
 
-	glDrawArrays(GL_TRIANGLES, 0, mesh.getVertices().size());
+	glDrawElements(GL_TRIANGLES, mesh.getIndices().size(), GL_UNSIGNED_SHORT, nullptr);
 
 	glDisableVertexAttribArray(0);
 	glDisableVertexAttribArray(1);
